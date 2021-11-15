@@ -197,3 +197,11 @@ if("${BUILD_SHARED_LIBS}")
         VERBATIM
     )
 endif()
+
+add_custom_target("docs" ALL
+    COMMAND "${CMAKE_COMMAND}" -E rm -f "${PROJECT_SOURCE_DIR}/build/doxygen"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${PROJECT_SOURCE_DIR}/build/doxygen"
+    COMMAND "${DOXYGEN_COMMAND}"
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    VERBATIM
+)

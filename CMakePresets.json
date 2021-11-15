@@ -38,63 +38,59 @@
           "type": "STRING",
           "value": "x64"
         },
-        "CMAKE_AR": {
-          "type": "FILEPATH",
-          "value": "lib.exe"
+        "CMAKE_AR_NAMES": {
+          "type": "STRING",
+          "value": "lib.exe;lib"
         },
-        "CMAKE_CXX_COMPILER": {
-          "type": "FILEPATH",
-          "value": "cl.exe"
+        "CMAKE_CXX_COMPILER_NAMES": {
+          "type": "STRING",
+          "value": "cl.exe;cl"
         },
-        "CMAKE_C_COMPILER": {
-          "type": "FILEPATH",
-          "value": "cl.exe"
+        "CMAKE_C_COMPILER_NAMES": {
+          "type": "STRING",
+          "value": "cl.exe;cl"
         },
-        "CMAKE_LINKER": {
-          "type": "FILEPATH",
-          "value": "link.exe"
+        "CMAKE_LINKER_NAMES": {
+          "type": "STRING",
+          "value": "link.exe;link"
         },
-        "CMAKE_MT": {
-          "type": "FILEPATH",
-          "value": "mt.exe"
+        "CMAKE_MT_NAMES": {
+          "type": "STRING",
+          "value": "mt.exe;mt"
         },
-        "CMAKE_RC_COMPILER": {
-          "type": "FILEPATH",
-          "value": "rc.exe"
-        },
-        "CONAN_COMMAND": {
-          "type": "FILEPATH",
-          "value": "conan.exe"
+        "CMAKE_RC_COMPILER_NAMES": {
+          "type": "STRING",
+          "value": "rc.exe;rc"
         }
       }
     },
     {
-      "name": "gcc",
+      "name": "mingw-gcc",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_AR": {
-          "type": "FILEPATH",
-          "value": "ar.exe"
+        "CMAKE_AR_NAMES": {
+          "type": "STRING",
+          "value": "ar.exe;ar"
         },
-        "CMAKE_CXX_COMPILER": {
-          "type": "FILEPATH",
-          "value": "g++.exe"
+        "CMAKE_CXX_COMPILER_NAMES": {
+          "type": "STRING",
+          "value": "g++.exe;g++"
         },
-        "CMAKE_C_COMPILER": {
-          "type": "FILEPATH",
-          "value": "gcc.exe"
+        "CMAKE_C_COMPILER_NAMES": {
+          "type": "STRING",
+          "value": "gcc.exe;gcc.exe"
         },
-        "CMAKE_LINKER": {
-          "type": "FILEPATH",
-          "value": "ld.exe"
+        "CMAKE_LINKER_NAMES": {
+          "type": "STRING",
+          "value": "ld.exe;ld"
         },
-        "CMAKE_MT": {
-          "type": "FILEPATH",
+        "CMAKE_MT_NAMES": {
+          "type": "STRING",
           "value": ""
         },
-        "CMAKE_RC_COMPILER": {
-          "type": "FILEPATH",
-          "value": "windres.exe"
+        "CMAKE_RC_COMPILER_NAMES": {
+          "type": "STRING",
+          "value": "windres.exe;windres"
         }
       }
     },
