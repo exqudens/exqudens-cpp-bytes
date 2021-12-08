@@ -76,6 +76,21 @@ function(set_msvc_path var vswhereCommand compilerVersion)
         COMMAND_ERROR_IS_FATAL ANY
     )
 
+    if("" STREQUAL "${result}")
+        execute_process(
+            COMMAND "${vswhereCommand}" ${vswhereVersionArgs} "-products" "Microsoft.VisualStudio.Product.BuildTools" "-property" "installationPath"
+            OUTPUT_VARIABLE "result"
+            COMMAND_ECHO "STDERR"
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ENCODING "UTF-8"
+            COMMAND_ERROR_IS_FATAL ANY
+        )
+    endif()
+
+    if("" STREQUAL "${result}")
+        message(FATAL_ERROR "Empty result from: '${vswhereCommand}'.")
+    endif()
+
     cmake_path(CONVERT "${result}" TO_CMAKE_PATH_LIST result NORMALIZE)
     string(REGEX REPLACE "[\r]" "" result "${result}")
     string(REGEX REPLACE "[\n]" ";" result "${result}")
