@@ -1,4 +1,6 @@
-# Full
+# How To
+
+##### Full
 
 git-bash command line:
 ```
@@ -7,7 +9,7 @@ cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared
 cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared
 ```
 
-# Full skip test
+##### Full skip test
 
 git-bash command line:
 ```
@@ -16,7 +18,7 @@ cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared -DSKIP_CMAKE_TE
 cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared
 ```
 
-# Build
+##### Build
 
 git-bash command line:
 ```
@@ -25,7 +27,7 @@ cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared
 cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target "$(basename "${PWD}")"
 ```
 
-# Build tests
+##### Build tests
 
 git-bash command line:
 ```
@@ -34,7 +36,7 @@ cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared
 cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target test-app
 ```
 
-# Test
+##### Test
 
 git-bash command line:
 ```
@@ -43,7 +45,7 @@ cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared
 cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target cmake-test
 ```
 
-# Install
+##### Install
 
 git-bash command line:
 ```
@@ -52,7 +54,7 @@ cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared
 cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target cmake-install
 ```
 
-# Install skip test
+##### Install skip test
 
 git-bash command line:
 ```
@@ -61,20 +63,29 @@ cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared -DSKIP_CMAKE_TE
 cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target cmake-install
 ```
 
-# Doc
+##### Export
+
+git-bash command line:
+```
+rm -rf build
+cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared
+cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target conan-export
+```
+
+##### Export skip test
+
+git-bash command line:
+```
+rm -rf build
+cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared -DSKIP_CMAKE_TEST=TRUE
+cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target conan-export
+```
+
+##### Doc
 
 git-bash command line:
 ```
 rm -rf build
 cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared
 cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target cmake-doc
-```
-
-# Doc pdf
-
-git-bash command line:
-```
-rm -rf build
-cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared
-cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target cmake-doc-pdf
 ```

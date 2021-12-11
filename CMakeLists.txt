@@ -10,110 +10,107 @@ message("project: '${PROJECT_NAME}-${PROJECT_VERSION}'")
 include("util.cmake")
 include("config.cmake")
 
-if(NOT "" STREQUAL "${CONAN_COMMAND}")
-    set_conan_settings(CONAN_SETTINGS
-        "${CMAKE_SYSTEM_NAME}"
-        "${CXX_TARGET_ARCH}"
-        "${CMAKE_CXX_COMPILER_ID}"
-        "${CMAKE_CXX_COMPILER_VERSION}"
-        "${CMAKE_MSVC_RUNTIME_LIBRARY}"
-        "${CMAKE_CXX_STANDARD}"
-        "${CMAKE_BUILD_TYPE}"
-        #"gtest:compiler.runtime=MT" # error with 'shared' preset
+set_conan_settings(CONAN_SETTINGS
+    "${CMAKE_SYSTEM_NAME}"
+    "${CXX_TARGET_ARCH}"
+    "${CMAKE_CXX_COMPILER_ID}"
+    "${CMAKE_CXX_COMPILER_VERSION}"
+    "${CMAKE_MSVC_RUNTIME_LIBRARY}"
+    "${CMAKE_CXX_STANDARD}"
+    "${CMAKE_BUILD_TYPE}"
+    #"gtest:compiler.runtime=MT" # error with 'shared' preset
+)
+
+set_conan_options(CONAN_OPTIONS
+    "type=${CONAN_PACKAGE_TYPE}"
+    #"gtest:shared=False" # error with 'shared' preset
+    "gtest:shared=${CONAN_BUILD_SHARED_LIBS}"
+)
+
+set("CONAN_INSTALL_PREFIX" "${PROJECT_BINARY_DIR}/conan-install")
+
+if(NOT EXISTS "${CONAN_INSTALL_PREFIX}")
+    execute_process(
+        COMMAND "${CONAN_COMMAND}"
+        install
+        "${PROJECT_SOURCE_DIR}/conanfile.py"
+        --install-folder
+        "${CONAN_INSTALL_PREFIX}"
+        ${CONAN_SETTINGS}
+        ${CONAN_OPTIONS}
+        COMMAND_ECHO "STDERR"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ENCODING "UTF-8"
+        COMMAND_ERROR_IS_FATAL ANY
     )
+endif()
 
-    set_conan_options(CONAN_OPTIONS
-        "type=${CONAN_PACKAGE_TYPE}"
-        #"gtest:shared=False" # error with 'shared' preset
-        "gtest:shared=${CONAN_BUILD_SHARED_LIBS}"
+if(NOT EXISTS "${CONAN_INSTALL_PREFIX}/conan-packages.cmake")
+    message(FATAL_ERROR "Not exists: '${CONAN_INSTALL_PREFIX}/conan-packages.cmake'!")
+endif()
+
+include("${CONAN_INSTALL_PREFIX}/conan-packages.cmake")
+
+set(CMAKE_MODULE_PATH "${CONAN_INSTALL_PREFIX}")
+
+foreach(
+    conanPackageName
+    cmakePackageName
+    cmakePackageVersion
+    cmakePackageFindType
+    cmakePackagePaths
+    IN ZIP_LISTS
+    "${PROJECT_NAME}_CONAN_PACKAGE_NAMES"
+    "${PROJECT_NAME}_CMAKE_PACKAGE_NAMES"
+    "${PROJECT_NAME}_CMAKE_PACKAGE_VERSIONS"
+    "${PROJECT_NAME}_CMAKE_PACKAGE_FIND_TYPES"
+    "${PROJECT_NAME}_CMAKE_PACKAGE_PATHS"
+)
+    if(
+        "" STREQUAL "${conanPackageName}"
+        OR "" STREQUAL "${cmakePackageName}"
+        OR "" STREQUAL "${cmakePackageVersion}"
+        OR "" STREQUAL "${cmakePackageFindType}"
+        OR "" STREQUAL "${cmakePackagePaths}"
     )
-
-    set("CONAN_INSTALL_PREFIX" "${PROJECT_BINARY_DIR}/conan-install")
-
-    if(NOT EXISTS "${CONAN_INSTALL_PREFIX}")
-        execute_process(
-            COMMAND "${CONAN_COMMAND}"
-            install
-            "${PROJECT_SOURCE_DIR}/conanfile.py"
-            --install-folder
-            "${CONAN_INSTALL_PREFIX}"
-            ${CONAN_SETTINGS}
-            ${CONAN_OPTIONS}
-            COMMAND_ECHO "STDERR"
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            ENCODING "UTF-8"
-            COMMAND_ERROR_IS_FATAL ANY
+        string(JOIN " " errorMessage
+            "Empty value 'conanPackageName': '${conanPackageName}'"
+            "or 'cmakePackageName': '${cmakePackageName}'"
+            "or 'cmakePackageVersion': '${cmakePackageVersion}'"
+            "or 'cmakePackageFindType': '${cmakePackageFindType}'"
+            "or 'cmakePackagePaths': '${cmakePackagePaths}'!"
         )
+        message(FATAL_ERROR "${errorMessage}")
     endif()
 
-    if(NOT EXISTS "${CONAN_INSTALL_PREFIX}/conan-packages.cmake")
-        message(FATAL_ERROR "Not exists: '${CONAN_INSTALL_PREFIX}/conan-packages.cmake'!")
-    endif()
+    string(REPLACE "<sep>" ";" tmpCmakePackagePaths "${cmakePackagePaths}")
 
-    include("${CONAN_INSTALL_PREFIX}/conan-packages.cmake")
-
-    set(CMAKE_MODULE_PATH "${CONAN_INSTALL_PREFIX}")
-
-    foreach(
-        conanPackageName
-        cmakePackageName
-        cmakePackageVersion
-        cmakePackageFindType
-        cmakePackagePaths
-        IN ZIP_LISTS
-        "${PROJECT_NAME}_CONAN_PACKAGE_NAMES"
-        "${PROJECT_NAME}_CMAKE_PACKAGE_NAMES"
-        "${PROJECT_NAME}_CMAKE_PACKAGE_VERSIONS"
-        "${PROJECT_NAME}_CMAKE_PACKAGE_FIND_TYPES"
-        "${PROJECT_NAME}_CMAKE_PACKAGE_PATHS"
-    )
-        if(
-            "" STREQUAL "${conanPackageName}"
-            OR "" STREQUAL "${cmakePackageName}"
-            OR "" STREQUAL "${cmakePackageVersion}"
-            OR "" STREQUAL "${cmakePackageFindType}"
-            OR "" STREQUAL "${cmakePackagePaths}"
-        )
-            string(JOIN " " errorMessage
-                "Empty value 'conanPackageName': '${conanPackageName}'"
-                "or 'cmakePackageName': '${cmakePackageName}'"
-                "or 'cmakePackageVersion': '${cmakePackageVersion}'"
-                "or 'cmakePackageFindType': '${cmakePackageFindType}'"
-                "or 'cmakePackagePaths': '${cmakePackagePaths}'!"
-            )
-            message(FATAL_ERROR "${errorMessage}")
+    foreach(cmakePackagePath ${tmpCmakePackagePaths})
+        if(NOT IS_DIRECTORY "${cmakePackagePath}")
+            message(FATAL_ERROR "Not is directory 'cmakePackagePath': '${cmakePackagePath}'!")
         endif()
-
-        string(REPLACE "<sep>" ";" tmpCmakePackagePaths "${cmakePackagePaths}")
-
-        foreach(cmakePackagePath ${tmpCmakePackagePaths})
-            if(NOT IS_DIRECTORY "${cmakePackagePath}")
-                message(FATAL_ERROR "Not is directory 'cmakePackagePath': '${cmakePackagePath}'!")
-            endif()
-            list(APPEND CMAKE_PREFIX_PATH "${cmakePackagePath}")
-        endforeach()
-
-        if("<ignore>" STREQUAL "${cmakePackageVersion}" AND "MODULE" STREQUAL "${cmakePackageFindType}")
-            find_package("${cmakePackageName}" QUIET)
-        elseif(NOT "<ignore>" STREQUAL "${cmakePackageVersion}" AND "MODULE" STREQUAL "${cmakePackageFindType}")
-            find_package("${cmakePackageName}" "${cmakePackageVersion}" EXACT QUIET)
-        elseif("<ignore>" STREQUAL "${cmakePackageVersion}" AND NOT "MODULE" STREQUAL "${cmakePackageFindType}")
-            find_package("${cmakePackageName}" QUIET CONFIG)
-        elseif(NOT "<ignore>" STREQUAL "${cmakePackageVersion}" AND NOT "MODULE" STREQUAL "${cmakePackageFindType}")
-            find_package("${cmakePackageName}" "${cmakePackageVersion}" EXACT QUIET CONFIG)
-        endif()
-
+        list(APPEND CMAKE_PREFIX_PATH "${cmakePackagePath}")
     endforeach()
 
-    set_not_found_package_names(NOT_FOUND_PACKAGE_NAMES ${${PROJECT_NAME}_CMAKE_PACKAGE_NAMES})
-
-    if(NOT "" STREQUAL "${NOT_FOUND_PACKAGE_NAMES}")
-        foreach(package ${NOT_FOUND_PACKAGE_NAMES})
-            message(WARNING "${package}_FOUND: '${${package}_FOUND}'")
-        endforeach()
-        return()
+    if("<ignore>" STREQUAL "${cmakePackageVersion}" AND "MODULE" STREQUAL "${cmakePackageFindType}")
+        find_package("${cmakePackageName}" QUIET)
+    elseif(NOT "<ignore>" STREQUAL "${cmakePackageVersion}" AND "MODULE" STREQUAL "${cmakePackageFindType}")
+        find_package("${cmakePackageName}" "${cmakePackageVersion}" EXACT QUIET)
+    elseif("<ignore>" STREQUAL "${cmakePackageVersion}" AND NOT "MODULE" STREQUAL "${cmakePackageFindType}")
+        find_package("${cmakePackageName}" QUIET CONFIG)
+    elseif(NOT "<ignore>" STREQUAL "${cmakePackageVersion}" AND NOT "MODULE" STREQUAL "${cmakePackageFindType}")
+        find_package("${cmakePackageName}" "${cmakePackageVersion}" EXACT QUIET CONFIG)
     endif()
 
+endforeach()
+
+set_not_found_package_names(NOT_FOUND_PACKAGE_NAMES ${${PROJECT_NAME}_CMAKE_PACKAGE_NAMES})
+
+if(NOT "" STREQUAL "${NOT_FOUND_PACKAGE_NAMES}")
+    foreach(package ${NOT_FOUND_PACKAGE_NAMES})
+        message(WARNING "${package}_FOUND: '${${package}_FOUND}'")
+    endforeach()
+    return()
 endif()
 
 add_library("${PROJECT_NAME}"
@@ -258,17 +255,41 @@ add_custom_target("cmake-install" ALL
     VERBATIM
 )
 
-add_custom_target("cmake-doc"
-    COMMAND "${CMAKE_COMMAND}" -E rm -rf "${PROJECT_SOURCE_DIR}/build/doxygen"
-    COMMAND "${CMAKE_COMMAND}" -E make_directory "${PROJECT_SOURCE_DIR}/build/doxygen"
-    COMMAND "${DOXYGEN_COMMAND}"
+add_custom_target("conan-export"
+    COMMAND "${CONAN_COMMAND}"
+            export-pkg
+            --force
+            "${PROJECT_SOURCE_DIR}/conanfile.py"
+            "gitlab-group+gitlab-sub-group+${PROJECT_NAME}/stable"
+            --package-folder
+            "${CMAKE_INSTALL_PREFIX}"
+            ${CONAN_SETTINGS}
+            ${CONAN_OPTIONS}
+    DEPENDS "cmake-install"
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
     VERBATIM
 )
 
-add_custom_target("cmake-doc-pdf" ALL
-    COMMAND "${CMAKE_COMMAND}" -P latex-to-pdf.cmake --dir "${PROJECT_SOURCE_DIR}/build/doxygen/latex"
-    DEPENDS "cmake-doc"
+#[[set(CONAN_QUERY ${CONAN_SETTINGS} "type=${CONAN_PACKAGE_TYPE}")
+list(REMOVE_ITEM CONAN_QUERY "--settings")
+list(JOIN CONAN_QUERY " AND " CONAN_QUERY)
+string(REPLACE "compiler=Visual Studio" "compiler=\"Visual Studio\"" CONAN_QUERY "${CONAN_QUERY}")
+add_custom_target("conan-export-clean"
+    COMMAND "${CONAN_COMMAND}"
+            remove
+            --force
+            "${PROJECT_NAME}/${PROJECT_VERSION}@gitlab-group+gitlab-sub-group+${PROJECT_NAME}/stable"
+            --query
+            "${CONAN_QUERY}"
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    VERBATIM
+)]]
+
+add_custom_target("cmake-doc" ALL
+    COMMAND "${CMAKE_COMMAND}" -E rm -rf "${PROJECT_SOURCE_DIR}/build/doxygen"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${PROJECT_SOURCE_DIR}/build/doxygen"
+    COMMAND "${DOXYGEN_COMMAND}"
+    #COMMAND "${CMAKE_COMMAND}" -P latex-to-pdf.cmake --dir "${PROJECT_SOURCE_DIR}/build/doxygen/latex"
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
     VERBATIM
 )
