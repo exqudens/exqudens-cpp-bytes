@@ -20,13 +20,13 @@ if(NOT "" STREQUAL "${CONAN_COMMAND}")
         "${CMAKE_CXX_STANDARD}"
         "${CMAKE_BUILD_TYPE}"
         #"gtest:compiler.runtime=MT" # error with 'shared' preset
-        )
+    )
 
     set_conan_options(CONAN_OPTIONS
         "type=${CONAN_PACKAGE_TYPE}"
         #"gtest:shared=False" # error with 'shared' preset
         "gtest:shared=${CONAN_BUILD_SHARED_LIBS}"
-        )
+    )
 
     set("CONAN_INSTALL_PREFIX" "${PROJECT_BINARY_DIR}/conan-install")
 
@@ -80,7 +80,7 @@ if(NOT "" STREQUAL "${CONAN_COMMAND}")
                 "or 'cmakePackageVersion': '${cmakePackageVersion}'"
                 "or 'cmakePackageFindType': '${cmakePackageFindType}'"
                 "or 'cmakePackagePaths': '${cmakePackagePaths}'!"
-                )
+            )
             message(FATAL_ERROR "${errorMessage}")
         endif()
 
@@ -143,26 +143,65 @@ set_target_properties("${PROJECT_NAME}" PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL     "${PROJECT_BINARY_DIR}/main/lib"
     LIBRARY_OUTPUT_DIRECTORY_DEBUG          "${PROJECT_BINARY_DIR}/main/lib"
 )
+set_property(TARGET "${PROJECT_NAME}" PROPERTY "VERSION" "${PROJECT_VERSION}")
+set_property(TARGET "${PROJECT_NAME}" PROPERTY "SOVERSION" "${PROJECT_VERSION_MAJOR}")
+set_property(TARGET "${PROJECT_NAME}" PROPERTY "INTERFACE_${PROJECT_NAME}_MAJOR_VERSION" "${PROJECT_VERSION_MAJOR}")
+set_property(TARGET "${PROJECT_NAME}" APPEND PROPERTY "COMPATIBLE_INTERFACE_STRING" "${PROJECT_NAME}_MAJOR_VERSION")
+install(
+    TARGETS "${PROJECT_NAME}"
+    EXPORT "${PROJECT_NAME}-targets"
+    INCLUDES DESTINATION "include"
+    RUNTIME DESTINATION "bin"
+    LIBRARY DESTINATION "lib"
+    ARCHIVE DESTINATION "lib"
+)
+install(
+    DIRECTORY "src/main/cpp/"
+    DESTINATION "include"
+    FILES_MATCHING PATTERN "*.hpp"
+)
+install(
+    EXPORT "${PROJECT_NAME}-targets"
+    DESTINATION "cmake"
+    NAMESPACE "${PROJECT_NAME}::"
+    FILE "${PROJECT_NAME}-targets.cmake"
+)
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+    "${PROJECT_SOURCE_DIR}/package-config.cmake.in"
+    "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
+    INSTALL_DESTINATION "cmake"
+)
+write_basic_package_version_file(
+    "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
+    VERSION "${PROJECT_VERSION}"
+    COMPATIBILITY "ExactVersion"
+)
+install(
+    FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
+          "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
+    DESTINATION "cmake"
+)
 
-add_library("${PROJECT_NAME}-test-lib" INTERFACE
+add_library("test-lib" INTERFACE
     "src/test/cpp/exqudens/TestApplication.hpp"
     "src/test/cpp/exqudens/BytesTests.hpp"
 )
-target_include_directories("${PROJECT_NAME}-test-lib" INTERFACE
+target_include_directories("test-lib" INTERFACE
     "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/test/cpp>"
     "$<INSTALL_INTERFACE:include>"
 )
-target_link_libraries("${PROJECT_NAME}-test-lib" INTERFACE
+target_link_libraries("test-lib" INTERFACE
     "${PROJECT_NAME}"
     "GTest::gtest"
     "GTest::gtest_main"
 )
 
-add_executable("${PROJECT_NAME}-test-app" "src/test/cpp/main.cpp")
-target_link_libraries("${PROJECT_NAME}-test-app" PRIVATE
-    "${PROJECT_NAME}-test-lib"
+add_executable("test-app" "src/test/cpp/main.cpp")
+target_link_libraries("test-app" PRIVATE
+    "test-lib"
 )
-set_target_properties("${PROJECT_NAME}-test-app" PROPERTIES
+set_target_properties("test-app" PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY                "${PROJECT_BINARY_DIR}/test/bin"
     RUNTIME_OUTPUT_DIRECTORY_RELEASE        "${PROJECT_BINARY_DIR}/test/bin"
     RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${PROJECT_BINARY_DIR}/test/bin"
@@ -182,26 +221,54 @@ set_target_properties("${PROJECT_NAME}-test-app" PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY_DEBUG          "${PROJECT_BINARY_DIR}/test/lib"
 )
 if("${BUILD_SHARED_LIBS}")
-    add_custom_command(TARGET "${PROJECT_NAME}-test-app"
+    add_custom_command(TARGET "test-app"
         PRE_BUILD
         COMMAND "${CMAKE_COMMAND}"
-        ARGS -E rm -f "$<TARGET_PROPERTY:${PROJECT_NAME}-test-app,RUNTIME_OUTPUT_DIRECTORY>/*"
+        ARGS -E rm -f "$<TARGET_PROPERTY:test-app,RUNTIME_OUTPUT_DIRECTORY>/*"
         VERBATIM
     )
-    add_custom_command(TARGET "${PROJECT_NAME}-test-app"
+    add_custom_command(TARGET "test-app"
         POST_BUILD
         COMMAND "${CMAKE_COMMAND}"
-        ARGS -E copy_directory "$<TARGET_PROPERTY:${PROJECT_NAME},RUNTIME_OUTPUT_DIRECTORY>" "$<TARGET_PROPERTY:${PROJECT_NAME}-test-app,RUNTIME_OUTPUT_DIRECTORY>"
+        ARGS -E copy_directory "$<TARGET_PROPERTY:${PROJECT_NAME},RUNTIME_OUTPUT_DIRECTORY>" "$<TARGET_PROPERTY:test-app,RUNTIME_OUTPUT_DIRECTORY>"
         COMMAND "${CMAKE_COMMAND}"
-        ARGS -E copy_directory "${CONAN_INSTALL_PREFIX}/bin" "$<TARGET_PROPERTY:${PROJECT_NAME}-test-app,RUNTIME_OUTPUT_DIRECTORY>"
+        ARGS -E copy_directory "${CONAN_INSTALL_PREFIX}/bin" "$<TARGET_PROPERTY:test-app,RUNTIME_OUTPUT_DIRECTORY>"
         VERBATIM
     )
 endif()
 
-add_custom_target("docs" ALL
-    COMMAND "${CMAKE_COMMAND}" -E rm -f "${PROJECT_SOURCE_DIR}/build/doxygen"
+enable_testing()
+include(GoogleTest)
+gtest_discover_tests("test-app"
+    WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/test/bin"
+    PROPERTIES ENVIRONMENT "PARENT_PATH=;PATH="
+)
+
+add_custom_target("cmake-test"
+    COMMAND "${CMAKE_CTEST_COMMAND}" --preset "${PRESET_NAME}"
+    DEPENDS "test-app"
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    VERBATIM
+)
+
+add_custom_target("cmake-install" ALL
+    COMMAND "${CMAKE_COMMAND}" --install "${PROJECT_BINARY_DIR}" --prefix "${CMAKE_INSTALL_PREFIX}"
+    DEPENDS ${TARGET_CMAKE_INSTALL_DEPENDS_ON}
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    VERBATIM
+)
+
+add_custom_target("cmake-doc"
+    COMMAND "${CMAKE_COMMAND}" -E rm -rf "${PROJECT_SOURCE_DIR}/build/doxygen"
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${PROJECT_SOURCE_DIR}/build/doxygen"
     COMMAND "${DOXYGEN_COMMAND}"
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    VERBATIM
+)
+
+add_custom_target("cmake-doc-pdf" ALL
+    COMMAND "${CMAKE_COMMAND}" -P latex-to-pdf.cmake --dir "${PROJECT_SOURCE_DIR}/build/doxygen/latex"
+    DEPENDS "cmake-doc"
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
     VERBATIM
 )

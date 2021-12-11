@@ -1,61 +1,80 @@
-# Full Build
+# Full
 
 git-bash command line:
 ```
-cmake -G "CodeBlocks - MinGW Makefiles" -S . -B build
-cmake --build build --target all -- -j 3
+rm -rf build
+cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared
+cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared
 ```
 
-# Full Test
-
-git-bash command line:
-```
-cmake -G "CodeBlocks - MinGW Makefiles" -S . -B build
-cmake --build build --target all -- -j 3
-cmake --build build --target test -- -j 3
-```
-
-# Full Install
+# Full skip test
 
 git-bash command line:
 ```
-cmake -G "CodeBlocks - MinGW Makefiles" -S . -B build
-cmake --build build --target all -- -j 3
-cmake --build build --target test -- -j 3
-cmake --build build --target install -- -j 3
+rm -rf build
+cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared -DSKIP_CMAKE_TEST=TRUE
+cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared
 ```
 
-##### Configure
-
-git-bash command line:
-```
-cmake -G "CodeBlocks - MinGW Makefiles" -S . -B build
-```
-
-##### Clean
+# Build
 
 git-bash command line:
 ```
-cmake --build build --target clean -- -j 3
+rm -rf build
+cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared
+cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target "$(basename "${PWD}")"
 ```
 
-##### Build
-
-git-bash command line:
-```
-cmake --build build --target all -- -j 3
-```
-
-##### Test
+# Build tests
 
 git-bash command line:
 ```
-cmake --build build --target test -- -j 3
+rm -rf build
+cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared
+cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target test-app
 ```
 
-##### Install
+# Test
 
 git-bash command line:
 ```
-cmake --build build --target install -- -j 3
+rm -rf build
+cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared
+cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target cmake-test
+```
+
+# Install
+
+git-bash command line:
+```
+rm -rf build
+cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared
+cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target cmake-install
+```
+
+# Install skip test
+
+git-bash command line:
+```
+rm -rf build
+cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared -DSKIP_CMAKE_TEST=TRUE
+cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target cmake-install
+```
+
+# Doc
+
+git-bash command line:
+```
+rm -rf build
+cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared
+cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target cmake-doc
+```
+
+# Doc pdf
+
+git-bash command line:
+```
+rm -rf build
+cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared
+cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target cmake-doc-pdf
 ```

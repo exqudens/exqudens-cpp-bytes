@@ -6,12 +6,19 @@
   },
   "configurePresets": [
     {
+      "name": "default",
+      "hidden": true,
+      "cacheVariables": {
+        "PRESET_NAME": {
+          "type": "STRING",
+          "value": "${presetName}"
+        }
+      }
+    },
+    {
       "name": "windows",
       "hidden": true,
-      "cmakeExecutable": "cmake.exe",
-      "environment": {
-        "PATH": "$penv{PATH}"
-      }
+      "cmakeExecutable": "cmake.exe"
     },
     {
       "name": "ninja",
@@ -38,27 +45,27 @@
           "type": "STRING",
           "value": "x64"
         },
-        "CMAKE_AR_NAMES": {
+        "AR_NAMES": {
           "type": "STRING",
           "value": "lib.exe;lib"
         },
-        "CMAKE_CXX_COMPILER_NAMES": {
+        "CXX_COMPILER_NAMES": {
           "type": "STRING",
           "value": "cl.exe;cl"
         },
-        "CMAKE_C_COMPILER_NAMES": {
+        "C_COMPILER_NAMES": {
           "type": "STRING",
           "value": "cl.exe;cl"
         },
-        "CMAKE_LINKER_NAMES": {
+        "LINKER_NAMES": {
           "type": "STRING",
           "value": "link.exe;link"
         },
-        "CMAKE_MT_NAMES": {
+        "MT_NAMES": {
           "type": "STRING",
           "value": "mt.exe;mt"
         },
-        "CMAKE_RC_COMPILER_NAMES": {
+        "RC_COMPILER_NAMES": {
           "type": "STRING",
           "value": "rc.exe;rc"
         }
@@ -68,27 +75,27 @@
       "name": "mingw-gcc",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_AR_NAMES": {
+        "AR_NAMES": {
           "type": "STRING",
           "value": "ar.exe;ar"
         },
-        "CMAKE_CXX_COMPILER_NAMES": {
+        "CXX_COMPILER_NAMES": {
           "type": "STRING",
           "value": "g++.exe;g++"
         },
-        "CMAKE_C_COMPILER_NAMES": {
+        "C_COMPILER_NAMES": {
           "type": "STRING",
           "value": "gcc.exe;gcc.exe"
         },
-        "CMAKE_LINKER_NAMES": {
+        "LINKER_NAMES": {
           "type": "STRING",
           "value": "ld.exe;ld"
         },
-        "CMAKE_MT_NAMES": {
+        "MT_NAMES": {
           "type": "STRING",
           "value": ""
         },
-        "CMAKE_RC_COMPILER_NAMES": {
+        "RC_COMPILER_NAMES": {
           "type": "STRING",
           "value": "windres.exe;windres"
         }
@@ -174,44 +181,78 @@
         }
       }
     },
-
+    
     {
-      "name": "windows.ninja.msvc-16-x64-x64.release.static",
-      "inherits": [ "windows", "ninja", "msvc-16-x64-x64", "release", "static", "mt" ],
+      "name": "windows.ninja.msvc-16-x64-x64.release.shared",
+      "inherits": [ "default", "windows", "ninja", "msvc-16-x64-x64", "release", "shared", "md" ],
       "binaryDir": "${sourceDir}/build/0"
     },
     {
-      "name": "windows.ninja.msvc-16-x64-x64.release.shared",
-      "inherits": [ "windows", "ninja", "msvc-16-x64-x64", "release", "shared", "md" ],
+      "name": "windows.ninja.msvc-16-x64-x64.release.static",
+      "inherits": [ "default", "windows", "ninja", "msvc-16-x64-x64", "release", "static", "mt" ],
       "binaryDir": "${sourceDir}/build/1"
     },
     {
-      "name": "windows.ninja.msvc-16-x64-x64.debug.static",
-      "inherits": [ "windows", "ninja", "msvc-16-x64-x64", "debug", "static", "mtd" ],
+      "name": "windows.ninja.msvc-16-x64-x64.debug.shared",
+      "inherits": [ "default", "windows", "ninja", "msvc-16-x64-x64", "debug", "shared", "mdd" ],
       "binaryDir": "${sourceDir}/build/2"
     },
     {
-      "name": "windows.ninja.msvc-16-x64-x64.debug.shared",
-      "inherits": [ "windows", "ninja", "msvc-16-x64-x64", "debug", "shared", "mdd" ],
+      "name": "windows.ninja.msvc-16-x64-x64.debug.static",
+      "inherits": [ "default", "windows", "ninja", "msvc-16-x64-x64", "debug", "static", "mtd" ],
       "binaryDir": "${sourceDir}/build/3"
     }
   ],
   "buildPresets": [
     {
-      "name": "windows.ninja.msvc-16-x64-x64.release.static",
-      "configurePreset": "windows.ninja.msvc-16-x64-x64.release.static"
-    },
-    {
       "name": "windows.ninja.msvc-16-x64-x64.release.shared",
       "configurePreset": "windows.ninja.msvc-16-x64-x64.release.shared"
     },
     {
-      "name": "windows.ninja.msvc-16-x64-x64.debug.static",
-      "configurePreset": "windows.ninja.msvc-16-x64-x64.debug.static"
+      "name": "windows.ninja.msvc-16-x64-x64.release.static",
+      "configurePreset": "windows.ninja.msvc-16-x64-x64.release.static"
     },
     {
       "name": "windows.ninja.msvc-16-x64-x64.debug.shared",
       "configurePreset": "windows.ninja.msvc-16-x64-x64.debug.shared"
+    },
+    {
+      "name": "windows.ninja.msvc-16-x64-x64.debug.static",
+      "configurePreset": "windows.ninja.msvc-16-x64-x64.debug.static"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "test-default",
+      "hidden": true,
+      "output": {
+        "verbosity": "verbose",
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    },
+    {
+      "name": "windows.ninja.msvc-16-x64-x64.release.shared",
+      "configurePreset": "windows.ninja.msvc-16-x64-x64.release.shared",
+      "inherits": [ "test-default" ]
+    },
+    {
+      "name": "windows.ninja.msvc-16-x64-x64.release.static",
+      "configurePreset": "windows.ninja.msvc-16-x64-x64.release.static",
+      "inherits": [ "test-default" ]
+    },
+    {
+      "name": "windows.ninja.msvc-16-x64-x64.debug.shared",
+      "configurePreset": "windows.ninja.msvc-16-x64-x64.debug.shared",
+      "inherits": [ "test-default" ]
+    },
+    {
+      "name": "windows.ninja.msvc-16-x64-x64.debug.static",
+      "configurePreset": "windows.ninja.msvc-16-x64-x64.debug.static",
+      "inherits": [ "test-default" ]
     }
   ]
 }
