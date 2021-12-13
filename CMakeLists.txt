@@ -153,11 +153,6 @@ install(
     ARCHIVE DESTINATION "lib"
 )
 install(
-    DIRECTORY "src/main/cpp/"
-    DESTINATION "include"
-    FILES_MATCHING PATTERN "*.hpp"
-)
-install(
     EXPORT "${PROJECT_NAME}-targets"
     DESTINATION "cmake"
     NAMESPACE "${PROJECT_NAME}::"
@@ -178,6 +173,11 @@ install(
     FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
           "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
     DESTINATION "cmake"
+)
+install(
+    DIRECTORY "src/main/cpp/"
+    DESTINATION "include"
+    FILES_MATCHING PATTERN "*.hpp"
 )
 
 add_library("test-lib" INTERFACE
