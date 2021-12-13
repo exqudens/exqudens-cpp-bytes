@@ -223,7 +223,7 @@
   ],
   "testPresets": [
     {
-      "name": "test-default",
+      "name": "default",
       "hidden": true,
       "output": {
         "verbosity": "verbose",
@@ -237,22 +237,22 @@
     {
       "name": "windows.ninja.msvc-16-x64-x64.release.shared",
       "configurePreset": "windows.ninja.msvc-16-x64-x64.release.shared",
-      "inherits": [ "test-default" ]
+      "inherits": [ "default" ]
     },
     {
       "name": "windows.ninja.msvc-16-x64-x64.release.static",
       "configurePreset": "windows.ninja.msvc-16-x64-x64.release.static",
-      "inherits": [ "test-default" ]
+      "inherits": [ "default" ]
     },
     {
       "name": "windows.ninja.msvc-16-x64-x64.debug.shared",
       "configurePreset": "windows.ninja.msvc-16-x64-x64.debug.shared",
-      "inherits": [ "test-default" ]
+      "inherits": [ "default" ]
     },
     {
       "name": "windows.ninja.msvc-16-x64-x64.debug.static",
       "configurePreset": "windows.ninja.msvc-16-x64-x64.debug.static",
-      "inherits": [ "test-default" ]
+      "inherits": [ "default" ]
     }
   ]
 }
