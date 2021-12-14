@@ -177,7 +177,9 @@ install(
 install(
     DIRECTORY "src/main/cpp/"
     DESTINATION "include"
-    FILES_MATCHING PATTERN "*.hpp"
+    FILES_MATCHING
+    PATTERN "*.h"
+    PATTERN "*.hpp"
 )
 
 add_library("test-lib" INTERFACE
