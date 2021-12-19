@@ -32,12 +32,12 @@ set("CONAN_INSTALL_PREFIX" "${PROJECT_BINARY_DIR}/conan-install")
 if(NOT EXISTS "${CONAN_INSTALL_PREFIX}")
     execute_process(
         COMMAND "${CONAN_COMMAND}"
-        install
-        "${PROJECT_SOURCE_DIR}/conanfile.py"
-        --install-folder
-        "${CONAN_INSTALL_PREFIX}"
-        ${CONAN_SETTINGS}
-        ${CONAN_OPTIONS}
+                install
+                "${PROJECT_SOURCE_DIR}/conanfile.py"
+                --install-folder
+                "${CONAN_INSTALL_PREFIX}"
+                ${CONAN_SETTINGS}
+                ${CONAN_OPTIONS}
         COMMAND_ECHO "STDERR"
         OUTPUT_STRIP_TRAILING_WHITESPACE
         ENCODING "UTF-8"
@@ -57,27 +57,23 @@ foreach(
     conanPackageName
     cmakePackageName
     cmakePackageVersion
-    cmakePackageFindType
     cmakePackagePaths
     IN ZIP_LISTS
     "${PROJECT_NAME}_CONAN_PACKAGE_NAMES"
     "${PROJECT_NAME}_CMAKE_PACKAGE_NAMES"
     "${PROJECT_NAME}_CMAKE_PACKAGE_VERSIONS"
-    "${PROJECT_NAME}_CMAKE_PACKAGE_FIND_TYPES"
     "${PROJECT_NAME}_CMAKE_PACKAGE_PATHS"
 )
     if(
         "" STREQUAL "${conanPackageName}"
         OR "" STREQUAL "${cmakePackageName}"
         OR "" STREQUAL "${cmakePackageVersion}"
-        OR "" STREQUAL "${cmakePackageFindType}"
         OR "" STREQUAL "${cmakePackagePaths}"
     )
         string(JOIN " " errorMessage
             "Empty value 'conanPackageName': '${conanPackageName}'"
             "or 'cmakePackageName': '${cmakePackageName}'"
             "or 'cmakePackageVersion': '${cmakePackageVersion}'"
-            "or 'cmakePackageFindType': '${cmakePackageFindType}'"
             "or 'cmakePackagePaths': '${cmakePackagePaths}'!"
         )
         message(FATAL_ERROR "${errorMessage}")
@@ -92,13 +88,9 @@ foreach(
         list(APPEND CMAKE_PREFIX_PATH "${cmakePackagePath}")
     endforeach()
 
-    if("<ignore>" STREQUAL "${cmakePackageVersion}" AND "MODULE" STREQUAL "${cmakePackageFindType}")
-        find_package("${cmakePackageName}" QUIET)
-    elseif(NOT "<ignore>" STREQUAL "${cmakePackageVersion}" AND "MODULE" STREQUAL "${cmakePackageFindType}")
+    if("gtest" STREQUAL "${conanPackageName}")
         find_package("${cmakePackageName}" "${cmakePackageVersion}" EXACT QUIET)
-    elseif("<ignore>" STREQUAL "${cmakePackageVersion}" AND NOT "MODULE" STREQUAL "${cmakePackageFindType}")
-        find_package("${cmakePackageName}" QUIET CONFIG)
-    elseif(NOT "<ignore>" STREQUAL "${cmakePackageVersion}" AND NOT "MODULE" STREQUAL "${cmakePackageFindType}")
+    else()
         find_package("${cmakePackageName}" "${cmakePackageVersion}" EXACT QUIET CONFIG)
     endif()
 
