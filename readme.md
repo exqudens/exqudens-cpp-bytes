@@ -90,10 +90,11 @@ cmake -S . --preset windows.ninja.msvc-16-x64-x64.release.shared
 cmake --build --preset windows.ninja.msvc-16-x64-x64.release.shared --target cmake-doc
 ```
 
-##### Export all packages
+##### Remove and export all packages
 
 git-bash command line:
 ```
+conan remove --force "$(basename "$(pwd)")"
 rm -rf build
 cmake -S . --list-presets | cut -f2 -d ':' | xargs -n1 -I '{}' cmake -S . --preset '{}'
 cmake -S . --list-presets | cut -f2 -d ':' | xargs -n1 -I '{}' cmake --build --preset '{}' --target conan-export
