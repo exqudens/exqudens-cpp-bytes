@@ -4,7 +4,7 @@ from logging import error
 from conans import ConanFile, tools
 from conans.util.files import save
 
-required_conan_version = ">=1.40.3"
+required_conan_version = ">=1.43.0"
 
 
 class ConanConfiguration(ConanFile):
