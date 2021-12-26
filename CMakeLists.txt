@@ -57,7 +57,7 @@ foreach(
     conanPackageName
     cmakePackageName
     cmakePackageVersion
-    cmakePackagePaths
+    cmakePackagePath
     IN ZIP_LISTS
     "${PROJECT_NAME}_CONAN_PACKAGE_NAMES"
     "${PROJECT_NAME}_CMAKE_PACKAGE_NAMES"
@@ -68,25 +68,20 @@ foreach(
         "" STREQUAL "${conanPackageName}"
         OR "" STREQUAL "${cmakePackageName}"
         OR "" STREQUAL "${cmakePackageVersion}"
-        OR "" STREQUAL "${cmakePackagePaths}"
+        OR "" STREQUAL "${cmakePackagePath}"
     )
         string(JOIN " " errorMessage
             "Empty value 'conanPackageName': '${conanPackageName}'"
             "or 'cmakePackageName': '${cmakePackageName}'"
             "or 'cmakePackageVersion': '${cmakePackageVersion}'"
-            "or 'cmakePackagePaths': '${cmakePackagePaths}'!"
+            "or 'cmakePackagePath': '${cmakePackagePath}'!"
         )
         message(FATAL_ERROR "${errorMessage}")
+    elseif(NOT IS_DIRECTORY "${cmakePackagePath}")
+        message(FATAL_ERROR "Not is directory 'cmakePackagePath': '${cmakePackagePath}'!")
     endif()
 
-    string(REPLACE "<sep>" ";" tmpCmakePackagePaths "${cmakePackagePaths}")
-
-    foreach(cmakePackagePath ${tmpCmakePackagePaths})
-        if(NOT IS_DIRECTORY "${cmakePackagePath}")
-            message(FATAL_ERROR "Not is directory 'cmakePackagePath': '${cmakePackagePath}'!")
-        endif()
-        list(APPEND CMAKE_PREFIX_PATH "${cmakePackagePath}")
-    endforeach()
+    list(APPEND CMAKE_PREFIX_PATH "${cmakePackagePath}")
 
     if("gtest" STREQUAL "${conanPackageName}")
         find_package("${cmakePackageName}" "${cmakePackageVersion}" EXACT QUIET)

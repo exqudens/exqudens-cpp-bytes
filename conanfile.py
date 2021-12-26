@@ -51,13 +51,7 @@ class ConanConfiguration(ConanFile):
 
             content += 'set("${PROJECT_NAME}_CMAKE_PACKAGE_PATHS"\n'
             for dep_name, dep in self.deps_cpp_info.dependencies:
-                paths = []
-                for build_path in dep.build_paths:
-                    cmake_path = build_path.replace('\\', '/')
-                    if cmake_path.endswith('/'):
-                        cmake_path = cmake_path[:-1]
-                    paths.append(cmake_path)
-                content += '    "' + '<sep>'.join(paths) + '" \n'
+                content += '    "' + dep.rootpath.replace('\\', '/') + '" \n'
             content += ')\n'
 
             save(filename, content)
