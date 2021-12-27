@@ -12,7 +12,8 @@ class ConanConfiguration(ConanFile):
         ("gtest/1.11.0", "private")
     ]
     settings = "arch", "os", "compiler", "build_type"
-    options = {"type": ["interface", "static", "shared"]}
+    options = {"shared": [True, False]}
+    default_options = {"shared": True}
     generators = "cmake_find_package"
 
     def set_name(self):

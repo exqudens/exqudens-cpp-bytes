@@ -22,7 +22,7 @@ set_conan_settings(CONAN_SETTINGS
 )
 
 set_conan_options(CONAN_OPTIONS
-    "type=${CONAN_PACKAGE_TYPE}"
+    "shared=${CONAN_BUILD_SHARED_LIBS}"
     #"gtest:shared=False" # error with 'shared' preset
     "gtest:shared=${CONAN_BUILD_SHARED_LIBS}"
 )
@@ -259,7 +259,7 @@ add_custom_target("conan-export"
     VERBATIM
 )
 
-#[[set(CONAN_QUERY ${CONAN_SETTINGS} "type=${CONAN_PACKAGE_TYPE}")
+#[[set(CONAN_QUERY ${CONAN_SETTINGS} "shared=${CONAN_BUILD_SHARED_LIBS}")
 list(REMOVE_ITEM CONAN_QUERY "--settings")
 list(JOIN CONAN_QUERY " AND " CONAN_QUERY)
 string(REPLACE "compiler=Visual Studio" "compiler=\"Visual Studio\"" CONAN_QUERY "${CONAN_QUERY}")
