@@ -23,8 +23,6 @@ set_conan_settings(CONAN_SETTINGS
 
 set_conan_options(CONAN_OPTIONS
     "shared=${CONAN_BUILD_SHARED_LIBS}"
-    #"gtest:shared=False" # error with 'shared' preset
-    "gtest:shared=${CONAN_BUILD_SHARED_LIBS}"
 )
 
 set("CONAN_INSTALL_PREFIX" "${PROJECT_BINARY_DIR}/conan-install")

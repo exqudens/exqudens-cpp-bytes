@@ -30,6 +30,13 @@ class ConanConfiguration(ConanFile):
             error(format_exc())
             raise e
 
+    def configure(self):
+        try:
+            self.options["gtest"].shared = self.options.shared
+        except Exception as e:
+            error(format_exc())
+            raise e
+
     def generate(self):
         try:
             filename = 'conan-packages.cmake'
