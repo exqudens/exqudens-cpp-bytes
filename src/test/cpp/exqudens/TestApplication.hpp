@@ -2,6 +2,8 @@
 
 #include "gtest/gtest.h"
 
+#include "exqudens/BytesTests.hpp"
+
 namespace exqudens {
 
   class TestApplication {
