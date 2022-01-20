@@ -44,22 +44,22 @@ class ConanConfiguration(ConanFile):
 
             content += 'set("${PROJECT_NAME}_CONAN_PACKAGE_NAMES"\n'
             for dep_name in self.deps_cpp_info.deps:
-                content += '    "' + dep_name + '" \n'
+                content += '    "' + dep_name + '"' + '\n'
             content += ')\n'
 
             content += 'set("${PROJECT_NAME}_CMAKE_PACKAGE_NAMES"\n'
             for dep_name, dep in self.deps_cpp_info.dependencies:
-                content += '    "' + dep.get_name('cmake_find_package') + '" \n'
+                content += '    "' + dep.get_name('cmake_find_package') + '" # ' + dep_name + '\n'
             content += ')\n'
 
             content += 'set("${PROJECT_NAME}_CMAKE_PACKAGE_VERSIONS"\n'
             for dep_name, dep in self.deps_cpp_info.dependencies:
-                content += '    "' + dep.version + '" \n'
+                content += '    "' + dep.version + '" # ' + dep_name + '\n'
             content += ')\n'
 
             content += 'set("${PROJECT_NAME}_CMAKE_PACKAGE_PATHS"\n'
             for dep_name, dep in self.deps_cpp_info.dependencies:
-                content += '    "' + dep.rootpath.replace('\\', '/') + '" \n'
+                content += '    "' + dep.rootpath.replace('\\', '/') + '" # ' + dep_name + '\n'
             content += ')\n'
 
             save(filename, content)
@@ -77,10 +77,7 @@ class ConanConfiguration(ConanFile):
 
     def package_info(self):
         try:
-            if self.options.type == "interface":
-                self.cpp_info.libs = []
-            else:
-                self.cpp_info.libs = tools.collect_libs(self)
+            self.cpp_info.libs = tools.collect_libs(self)
         except Exception as e:
             error(format_exc())
             raise e
