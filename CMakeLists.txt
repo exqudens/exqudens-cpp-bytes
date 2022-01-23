@@ -182,12 +182,17 @@ target_link_libraries("test-lib" INTERFACE
     "GTest::gtest"
     "GTest::gtest_main"
 )
+set_target_properties("test-lib" PROPERTIES
+    CXX_STANDARD 23
+)
 
 add_executable("test-app" "src/test/cpp/main.cpp")
 target_link_libraries("test-app" PRIVATE
     "test-lib"
 )
 set_target_properties("test-app" PROPERTIES
+    CXX_STANDARD 23
+
     RUNTIME_OUTPUT_DIRECTORY                "${PROJECT_BINARY_DIR}/test/bin"
     RUNTIME_OUTPUT_DIRECTORY_RELEASE        "${PROJECT_BINARY_DIR}/test/bin"
     RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${PROJECT_BINARY_DIR}/test/bin"
