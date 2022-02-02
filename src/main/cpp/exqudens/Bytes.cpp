@@ -16,6 +16,8 @@
 
 namespace exqudens {
 
+  bool Bytes::flag = false;
+
   DEFINE_METHODS(std::vector<unsigned char>, Bytes, toUnsignedCharVector, std::vector<long>, values) {
     if (nullptr == values) {
       return {};

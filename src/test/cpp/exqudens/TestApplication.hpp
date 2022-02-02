@@ -1,8 +1,8 @@
 #pragma once
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
-#include "exqudens/BytesTests.hpp"
+#include "exqudens/Tests.hpp"
 
 namespace exqudens {
 

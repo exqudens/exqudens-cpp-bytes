@@ -4,14 +4,14 @@
 #include <format>
 #include <iostream>
 
-#include <type_traits>
+#include <gtest/gtest.h>
 
-#include "gtest/gtest.h"
 #include "exqudens/Bytes.hpp"
 
 namespace exqudens {
 
   TEST(BytesTests, longVectorConstReferenceToUnsignedCharVector) {
+    Bytes::flag = true;
     const std::vector<long> expected = {123, -123, 987};
     for (size_t i = 0; i < expected.size(); i++) {
       //std::cout << "expected.at(" << i << "): '" << expected.at(i) << "'" << std::endl;
@@ -32,6 +32,7 @@ namespace exqudens {
   }
 
   TEST(BytesTests, longVectorReferenceToUnsignedCharVector) {
+    Bytes::flag = true;
     std::vector<long> expected = {123, -123, 987};
     for (size_t i = 0; i < expected.size(); i++) {
       //std::cout << "expected.at(" << i << "): '" << expected.at(i) << "'" << std::endl;
@@ -52,6 +53,7 @@ namespace exqudens {
   }
 
   TEST(BytesTests, longVectorConstPointerToUnsignedCharVector) {
+    Bytes::flag = true;
     const std::vector<long> expected = {123, -123, 987};
     for (size_t i = 0; i < expected.size(); i++) {
       //std::cout << "expected.at(" << i << "): '" << expected.at(i) << "'" << std::endl;
@@ -83,6 +85,7 @@ namespace exqudens {
   }
 
   TEST(BytesTests, longVectorPointerToUnsignedCharVector) {
+    Bytes::flag = true;
     std::vector<long> expected = {123, -123, 987};
     for (size_t i = 0; i < expected.size(); i++) {
       //std::cout << "expected.at(" << i << "): '" << expected.at(i) << "'" << std::endl;

@@ -9,6 +9,7 @@ message("project: '${PROJECT_NAME}-${PROJECT_VERSION}'")
 
 include("util.cmake")
 include("config.cmake")
+include("GenerateExportHeader")
 
 set_conan_settings(CONAN_SETTINGS
     "${CMAKE_SYSTEM_NAME}"
@@ -104,7 +105,14 @@ add_library("${PROJECT_NAME}"
     "src/main/cpp/exqudens/Bytes.hpp"
     "src/main/cpp/exqudens/Bytes.cpp"
 )
+generate_export_header("${PROJECT_NAME}" BASE_NAME "EXQUDENS_BYTES" EXPORT_FILE_NAME
+    "generated/main/exqudens/BytesExport.hpp"
+)
+if(NOT "${BUILD_SHARED_LIBS}")
+    set_target_properties("${PROJECT_NAME}" PROPERTIES COMPILE_FLAGS -DEXQUDENS_BYTES_STATIC_DEFINE)
+endif()
 target_include_directories("${PROJECT_NAME}" PUBLIC
+    "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/generated/main>"
     "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/main/cpp>"
     "$<INSTALL_INTERFACE:include>"
 )
@@ -162,7 +170,8 @@ install(
     DESTINATION "cmake"
 )
 install(
-    DIRECTORY "src/main/cpp/"
+    DIRECTORY "${PROJECT_BINARY_DIR}/generated/main/"
+              "src/main/cpp/"
     DESTINATION "include"
     FILES_MATCHING
     PATTERN "*.h"
@@ -171,7 +180,7 @@ install(
 
 add_library("test-lib" INTERFACE
     "src/test/cpp/exqudens/TestApplication.hpp"
-    "src/test/cpp/exqudens/BytesTests.hpp"
+    "src/test/cpp/exqudens/Tests.hpp"
 )
 target_include_directories("test-lib" INTERFACE
     "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/test/cpp>"
@@ -215,12 +224,14 @@ if("${BUILD_SHARED_LIBS}")
     add_custom_command(TARGET "test-app"
         PRE_BUILD
         COMMAND "${CMAKE_COMMAND}" -E rm -f "$<TARGET_PROPERTY:test-app,RUNTIME_OUTPUT_DIRECTORY>/*"
-        VERBATIM
-    )
-    add_custom_command(TARGET "test-app"
-        POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_directory "$<TARGET_PROPERTY:${PROJECT_NAME},RUNTIME_OUTPUT_DIRECTORY>" "$<TARGET_PROPERTY:test-app,RUNTIME_OUTPUT_DIRECTORY>"
         COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CONAN_INSTALL_PREFIX}/bin" "$<TARGET_PROPERTY:test-app,RUNTIME_OUTPUT_DIRECTORY>"
+        VERBATIM
+    )
+else()
+    add_custom_command(TARGET "test-app"
+        PRE_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E rm -f "$<TARGET_PROPERTY:test-app,RUNTIME_OUTPUT_DIRECTORY>/*"
         VERBATIM
     )
 endif()
@@ -284,3 +295,9 @@ add_custom_target("cmake-doc" ALL
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
     VERBATIM
 )
+
+set_target_names(ALL_TARGETS "${CMAKE_CURRENT_SOURCE_DIR}")
+message("all-targets:")
+foreach(t ${ALL_TARGETS})
+    message("  ${t}")
+endforeach()
