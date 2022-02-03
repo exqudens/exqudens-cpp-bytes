@@ -83,8 +83,9 @@ foreach(
     list(APPEND CMAKE_PREFIX_PATH "${cmakePackagePath}")
 
     if("gtest" STREQUAL "${conanPackageName}")
+        file(REMOVE "${CONAN_INSTALL_PREFIX}/FindGTest.cmake")
         list(APPEND NOT_FOUND_PACKAGE_NAMES "${cmakePackageName}")
-        find_package("${cmakePackageName}" "${cmakePackageVersion}" EXACT QUIET)
+        find_package("${cmakePackageName}" "${cmakePackageVersion}" EXACT QUIET CONFIG)
     else()
         list(APPEND NOT_FOUND_PACKAGE_NAMES "${cmakePackageName}")
         find_package("${cmakePackageName}" "${cmakePackageVersion}" EXACT QUIET CONFIG)
