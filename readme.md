@@ -96,6 +96,6 @@ git-bash command line:
 ```
 conan remove --force "$(basename "$(pwd)")"
 rm -rf build
-cmake -S . --list-presets | cut -f2 -d ':' | xargs -n1 -I '{}' cmake -S . --preset '{}'
-cmake -S . --list-presets | cut -f2 -d ':' | xargs -n1 -I '{}' cmake --build --preset '{}' --target conan-export
+cmake -S . --list-presets | cut -d ':' -f2 | grep . | cut -d '"' -f2 | xargs -I '{}' cmake -S . --preset '{}'
+cmake -S . --list-presets | cut -d ':' -f2 | grep . | cut -d '"' -f2 | xargs -I '{}' cmake --build --preset '{}' --target conan-export
 ```
