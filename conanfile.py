@@ -8,8 +8,8 @@ required_conan_version = ">=1.43.0"
 
 
 class ConanConfiguration(ConanFile):
-    requires = [
-        ("gtest/1.11.0", "private")
+    build_requires = [
+        "gtest/1.11.0"
     ]
     settings = "arch", "os", "compiler", "build_type"
     options = {"shared": [True, False]}

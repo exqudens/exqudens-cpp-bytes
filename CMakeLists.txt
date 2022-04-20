@@ -253,7 +253,7 @@ add_custom_target("cmake-test"
 
 add_custom_target("cmake-install" ALL
     COMMAND "${CMAKE_COMMAND}" --install "${PROJECT_BINARY_DIR}" --prefix "${CMAKE_INSTALL_PREFIX}"
-    DEPENDS ${TARGET_CMAKE_INSTALL_DEPENDS_ON}
+    DEPENDS "${TARGET_CMAKE_INSTALL_DEPENDS_ON}"
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
     VERBATIM
 )
