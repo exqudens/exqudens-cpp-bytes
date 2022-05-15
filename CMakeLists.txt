@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
-get_filename_component(RAW_NAME "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
-string(REPLACE " " "_" NAME "${RAW_NAME}")
-file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" RAW_VERSION)
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/name-version.txt" INFO)
+string(REPLACE ":" ";" INFO_LIST "${INFO}")
+list(GET INFO_LIST 0 RAW_NAME)
+list(GET INFO_LIST 1 RAW_VERSION)
+string(STRIP "${RAW_NAME}" NAME)
 string(STRIP "${RAW_VERSION}" VERSION)
 project("${NAME}" VERSION "${VERSION}" LANGUAGES "NONE")
 
@@ -10,24 +12,22 @@ message("project: '${PROJECT_NAME}-${PROJECT_VERSION}'")
 include("util.cmake")
 include("config.cmake")
 include("GenerateExportHeader")
+enable_testing()
+include("GoogleTest")
 
 set_conan_settings(CONAN_SETTINGS
     "${CMAKE_SYSTEM_NAME}"
-    "${CXX_TARGET_ARCH}"
+    "${CMAKE_SYSTEM_PROCESSOR}"
     "${CMAKE_CXX_COMPILER_ID}"
     "${CMAKE_CXX_COMPILER_VERSION}"
     "${CMAKE_MSVC_RUNTIME_LIBRARY}"
     "${CMAKE_CXX_STANDARD}"
     "${CMAKE_BUILD_TYPE}"
-    #"gtest:compiler.runtime=MT" # error with 'shared' preset
 )
-
 set_conan_options(CONAN_OPTIONS
     "shared=${CONAN_BUILD_SHARED_LIBS}"
 )
-
 set("CONAN_INSTALL_PREFIX" "${PROJECT_BINARY_DIR}/conan-install")
-
 if(NOT EXISTS "${CONAN_INSTALL_PREFIX}")
     execute_process(
         COMMAND "${CONAN_COMMAND}"
@@ -43,15 +43,11 @@ if(NOT EXISTS "${CONAN_INSTALL_PREFIX}")
         COMMAND_ERROR_IS_FATAL ANY
     )
 endif()
-
 if(NOT EXISTS "${CONAN_INSTALL_PREFIX}/conan-packages.cmake")
     message(FATAL_ERROR "Not exists: '${CONAN_INSTALL_PREFIX}/conan-packages.cmake'!")
 endif()
-
 include("${CONAN_INSTALL_PREFIX}/conan-packages.cmake")
-
 set(CMAKE_MODULE_PATH "${CONAN_INSTALL_PREFIX}")
-
 foreach(
     conanPackageName
     cmakePackageName
@@ -90,11 +86,8 @@ foreach(
         list(APPEND NOT_FOUND_PACKAGE_NAMES "${cmakePackageName}")
         find_package("${cmakePackageName}" "${cmakePackageVersion}" EXACT QUIET CONFIG)
     endif()
-
 endforeach()
-
 set_not_found_package_names(NOT_FOUND_PACKAGE_NAMES ${NOT_FOUND_PACKAGE_NAMES})
-
 if(NOT "" STREQUAL "${NOT_FOUND_PACKAGE_NAMES}")
     foreach(package ${NOT_FOUND_PACKAGE_NAMES})
         message(WARNING "${package}_FOUND: '${${package}_FOUND}'")
@@ -223,22 +216,13 @@ set_target_properties("test-app" PROPERTIES
 )
 if("${BUILD_SHARED_LIBS}")
     add_custom_command(TARGET "test-app"
-        PRE_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E rm -f "$<TARGET_PROPERTY:test-app,RUNTIME_OUTPUT_DIRECTORY>/*"
+        POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_directory "$<TARGET_PROPERTY:${PROJECT_NAME},RUNTIME_OUTPUT_DIRECTORY>" "$<TARGET_PROPERTY:test-app,RUNTIME_OUTPUT_DIRECTORY>"
         COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CONAN_INSTALL_PREFIX}/bin" "$<TARGET_PROPERTY:test-app,RUNTIME_OUTPUT_DIRECTORY>"
         VERBATIM
     )
-else()
-    add_custom_command(TARGET "test-app"
-        PRE_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E rm -f "$<TARGET_PROPERTY:test-app,RUNTIME_OUTPUT_DIRECTORY>/*"
-        VERBATIM
-    )
 endif()
 
-enable_testing()
-include(GoogleTest)
 gtest_discover_tests("test-app"
     WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/test/bin"
     PROPERTIES ENVIRONMENT "PARENT_PATH=;PATH="
